@@ -5,6 +5,7 @@ from PyQt5.QtGui import QPixmap
 from ui import Ui_MainWindow
 
 
+# Нахождение размеров топонима
 def get_toponym_size(toponym):
     toponym_upper_corner, toponym_lower_corner = (toponym['boundedBy']['Envelope']['upperCorner']).split(' '), (
         toponym['boundedBy']['Envelope']['lowerCorner']).split(' ')
@@ -14,6 +15,7 @@ def get_toponym_size(toponym):
     return [str(toponym_longitude_size), str(toponym_lattitude_size)]
 
 
+# Основной класс приложения
 class MyWidget(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
@@ -26,6 +28,7 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         self.postId_box.clicked.connect(self.update_address)
         self.address = None
 
+    # Поиск
     def search(self):
         geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
 
@@ -38,7 +41,6 @@ class MyWidget(QMainWindow, Ui_MainWindow):
 
         if not response:
             print('Error')
-            print(response)
             return
 
         json_response = response.json()
@@ -57,20 +59,24 @@ class MyWidget(QMainWindow, Ui_MainWindow):
 
         map_api_server = "http://static-maps.yandex.ru/1.x/"
         response = requests.get(map_api_server, params=map_params)
+        print(response)
 
         pixmap = QPixmap()
         pixmap.loadFromData(response.content)
         self.map_image.setPixmap(pixmap)
 
+    # Сброс поиска
     def reset(self):
         pass
 
+    # Смена типа карты
     def update_map_type(self):
         pass
 
+    # Показ почтового индекса в адресе
     def update_address(self):
         if not self.address:
-            return 
+            return
         post_id = self.address['postal_code'] if 'postal_code' in self.address else ''
         if self.postId_box.isChecked():
             self.address_label.setText(self.address['formatted'] + ', post code: ' + post_id)
