@@ -42,6 +42,8 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         json_response = response.json()
         toponym = json_response["response"]["GeoObjectCollection"][
             "featureMember"][0]["GeoObject"]
+        address = toponym['metaDataProperty']['GeocoderMetaData']['Address']['formatted']
+        self.address_label.setText(address)
         toponym_coodrinates = toponym["Point"]["pos"]
         toponym_longitude, toponym_lattitude = toponym_coodrinates.split(" ")
 

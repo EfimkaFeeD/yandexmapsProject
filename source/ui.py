@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(800, 600)
+        MainWindow.resize(1280, 720)
         font = QtGui.QFont()
         font.setPointSize(14)
         MainWindow.setFont(font)
@@ -54,7 +54,7 @@ class Ui_MainWindow(object):
         self.postId_box.setObjectName("postId_box")
         self.horizontalLayout.addWidget(self.postId_box)
         self.address_label = QtWidgets.QLabel(self.centralwidget)
-        self.address_label.setGeometry(QtCore.QRect(10, 50, 791, 81))
+        self.address_label.setGeometry(QtCore.QRect(10, 50, 1280, 81))
         self.address_label.setText("")
         self.address_label.setObjectName("address_label")
         self.map_image = QtWidgets.QLabel(self.centralwidget)
