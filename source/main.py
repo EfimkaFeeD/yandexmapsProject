@@ -5,6 +5,10 @@ from PyQt5.QtGui import QPixmap
 from ui import Ui_MainWindow
 
 
+map_api_server = "http://static-maps.yandex.ru/1.x/"
+map_types = {'scheme': 'map', 'satellite': 'sat', 'hybrid': 'sat,skl'}
+
+
 # Нахождение размеров топонима
 def get_toponym_size(toponym):
     toponym_upper_corner, toponym_lower_corner = (toponym['boundedBy']['Envelope']['upperCorner']).split(' '), (
@@ -21,12 +25,11 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         super().__init__()
         super().setupUi(self)
         self.search_button.clicked.connect(self.search)
-        self.map_type = self.view_button.currentText()
-        self.post_index = self.postId_box.isChecked()
         self.reset_button.clicked.connect(self.reset)
-        self.view_button.currentTextChanged.connect(self.update_map_type)
+        self.view_button.currentTextChanged.connect(self.update_map)
         self.postId_box.clicked.connect(self.update_address)
         self.address = None
+        self.toponym_data = None
 
     # Поиск
     def search(self):
@@ -54,16 +57,10 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         map_params = {
             "ll": ",".join([toponym_longitude, toponym_lattitude]),
             "spn": ",".join(get_toponym_size(toponym)),
-            "l": "map"
+            "l": self.view_button.currentText()
         }
-
-        map_api_server = "http://static-maps.yandex.ru/1.x/"
-        response = requests.get(map_api_server, params=map_params)
-        print(response)
-
-        pixmap = QPixmap()
-        pixmap.loadFromData(response.content)
-        self.map_image.setPixmap(pixmap)
+        self.toponym_data = map_params
+        self.update_map()
 
     # Сброс поиска
     def reset(self):
@@ -72,6 +69,15 @@ class MyWidget(QMainWindow, Ui_MainWindow):
     # Смена типа карты
     def update_map_type(self):
         pass
+
+    def update_map(self):
+        if not self.toponym_data:
+            return
+        self.toponym_data['l'] = map_types[self.view_button.currentText()]
+        response = requests.get(map_api_server, params=self.toponym_data)
+        pixmap = QPixmap()
+        pixmap.loadFromData(response.content)
+        self.map_image.setPixmap(pixmap)
 
     # Показ почтового индекса в адресе
     def update_address(self):
