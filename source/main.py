@@ -2,6 +2,7 @@ import sys
 import requests
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import Qt
 from ui import Ui_MainWindow
 
 
@@ -26,7 +27,7 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         super().setupUi(self)
         self.search_button.clicked.connect(self.search)
         self.reset_button.clicked.connect(self.reset)
-        self.view_button.currentTextChanged.connect(self.update_map)
+        self.view_button.currentTextChanged.connect(self.update_map_type)
         self.postId_box.clicked.connect(self.update_address)
         self.address = None
         self.toponym_data = None
@@ -57,7 +58,8 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         map_params = {
             "ll": ",".join([toponym_longitude, toponym_lattitude]),
             "spn": ",".join(get_toponym_size(toponym)),
-            "l": self.view_button.currentText()
+            "size": "650,450",
+            "l": map_types[self.view_button.currentText()]
         }
         self.toponym_data = map_params
         self.update_map()
@@ -68,12 +70,15 @@ class MyWidget(QMainWindow, Ui_MainWindow):
 
     # Смена типа карты
     def update_map_type(self):
-        pass
+        if not self.toponym_data:
+            return
+        self.toponym_data['l'] = map_types[self.view_button.currentText()]
+        self.update_map()
 
     def update_map(self):
         if not self.toponym_data:
             return
-        self.toponym_data['l'] = map_types[self.view_button.currentText()]
+        print('go to map update')
         response = requests.get(map_api_server, params=self.toponym_data)
         pixmap = QPixmap()
         pixmap.loadFromData(response.content)
@@ -88,6 +93,17 @@ class MyWidget(QMainWindow, Ui_MainWindow):
             self.address_label.setText(self.address['formatted'] + ', post code: ' + post_id)
         else:
             self.address_label.setText(self.address['formatted'])
+
+    def keyPressEvent(self, event):
+        if not self.toponym_data:
+            return
+        if event.key() == Qt.Key_PageUp:
+            spn = self.toponym_data['spn'].split(',')
+            print(spn)
+            spn[0], spn[1] = str(float(spn[0]) - 10), str(float(spn[1]) - 0.01)
+            self.toponym_data['spn'] = ','.join(spn)
+            print(spn)
+            self.update_map()
 
 
 if __name__ == '__main__':
