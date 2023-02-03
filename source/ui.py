@@ -57,6 +57,10 @@ class Ui_MainWindow(object):
         self.address_label.setGeometry(QtCore.QRect(10, 50, 791, 81))
         self.address_label.setText("")
         self.address_label.setObjectName("address_label")
+        self.map_image = QtWidgets.QLabel(self.centralwidget)
+        self.map_image.setGeometry(QtCore.QRect(20, 150, 761, 431))
+        self.map_image.setText("")
+        self.map_image.setObjectName("map_image")
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
