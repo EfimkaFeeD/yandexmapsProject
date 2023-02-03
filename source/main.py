@@ -1,7 +1,5 @@
 import sys
 import requests
-from PIL import Image
-from io import BytesIO
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtGui import QPixmap
 from ui import Ui_MainWindow
