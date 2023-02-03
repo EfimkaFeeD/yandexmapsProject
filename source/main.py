@@ -24,6 +24,7 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         self.reset_button.clicked.connect(self.reset)
         self.view_button.currentTextChanged.connect(self.update_map_type)
         self.postId_box.clicked.connect(self.update_address)
+        self.address = None
 
     def search(self):
         geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
@@ -37,13 +38,14 @@ class MyWidget(QMainWindow, Ui_MainWindow):
 
         if not response:
             print('Error')
+            print(response)
             return
 
         json_response = response.json()
         toponym = json_response["response"]["GeoObjectCollection"][
             "featureMember"][0]["GeoObject"]
-        address = toponym['metaDataProperty']['GeocoderMetaData']['Address']['formatted']
-        self.address_label.setText(address)
+        self.address = toponym['metaDataProperty']['GeocoderMetaData']['Address']
+        self.update_address()
         toponym_coodrinates = toponym["Point"]["pos"]
         toponym_longitude, toponym_lattitude = toponym_coodrinates.split(" ")
 
@@ -67,7 +69,13 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         pass
 
     def update_address(self):
-        pass
+        if not self.address:
+            return 
+        post_id = self.address['postal_code'] if 'postal_code' in self.address else ''
+        if self.postId_box.isChecked():
+            self.address_label.setText(self.address['formatted'] + ', post code: ' + post_id)
+        else:
+            self.address_label.setText(self.address['formatted'])
 
 
 if __name__ == '__main__':
