@@ -1,7 +1,7 @@
 import sys
 import requests
 from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt
 from ui import Ui_MainWindow
 
@@ -25,6 +25,9 @@ class MyWidget(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super().__init__()
         super().setupUi(self)
+        self.setFixedSize(1280, 960)
+        self.setWindowTitle('YandexMapsApp')
+        self.setWindowIcon(QIcon('icon.png'))
         self.search_button.clicked.connect(self.search)
         self.reset_button.clicked.connect(self.reset)
         self.view_button.currentTextChanged.connect(self.update_map_type)
@@ -60,6 +63,7 @@ class MyWidget(QMainWindow, Ui_MainWindow):
             "ll": ",".join([toponym_longitude, toponym_lattitude]),
             "spn": ",".join(get_toponym_size(toponym)),
             "size": "650,450",
+            "z": "10",
             "l": map_types[self.view_button.currentText()]
         }
         self.toponym_data = map_params
@@ -127,6 +131,54 @@ class MyWidget(QMainWindow, Ui_MainWindow):
                 spn[0], spn[1] = str(float(spn[0]) + x), str(float(spn[1]) + y)
                 print('spn after:', spn)
                 self.toponym_data['spn'] = ','.join(spn)
+                self.update_map()
+        # Передвижения центра карты выше
+        if event.key() == Qt.Key_Up:
+            ll = self.toponym_data['ll'].split(',')
+            print('ll before:', ll)
+            y = 2
+            if float(ll[1]) < 70:
+                ll[1] = str(float(ll[1]) + y)
+                print('ll after:', ll)
+                print('spn:', self.toponym_data['spn'])
+                print('z:', self.toponym_data['z'])
+                self.toponym_data['ll'] = ','.join(ll)
+                self.update_map()
+        # Передвижение центра карты ниже
+        if event.key() == Qt.Key_Down:
+            ll = self.toponym_data['ll'].split(',')
+            print('ll before:', ll)
+            y = 2
+            if float(ll[1]) > -70:
+                ll[1] = str(float(ll[1]) - y)
+                print('ll after:', ll)
+                print('spn:', self.toponym_data['spn'])
+                print('z:', self.toponym_data['z'])
+                self.toponym_data['ll'] = ','.join(ll)
+                self.update_map()
+        # Передвижение карты правее
+        if event.key() == Qt.Key_Right:
+            ll = self.toponym_data['ll'].split(',')
+            print('ll before:', ll)
+            x = 2
+            if float(ll[0]) < 177:
+                ll[0] = str(float(ll[0]) + x)
+                print('ll after:', ll)
+                print('spn:', self.toponym_data['spn'])
+                print('z:', self.toponym_data['z'])
+                self.toponym_data['ll'] = ','.join(ll)
+                self.update_map()
+        # Передвижение карты левее
+        if event.key() == Qt.Key_Left:
+            ll = self.toponym_data['ll'].split(',')
+            print('ll before:', ll)
+            x = 2
+            if float(ll[0]) > 3:
+                ll[0] = str(float(ll[0]) - x)
+                print('ll after:', ll)
+                print('spn:', self.toponym_data['spn'])
+                print('z:', self.toponym_data['z'])
+                self.toponym_data['ll'] = ','.join(ll)
                 self.update_map()
 
     # Ошибка в получении запроса
