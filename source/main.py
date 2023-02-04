@@ -101,6 +101,7 @@ class MyWidget(QMainWindow, Ui_MainWindow):
     def keyPressEvent(self, event):
         if not self.toponym_data:
             return
+        # Зум: приближение
         if event.key() == Qt.Key_PageUp:
             spn = self.toponym_data['spn'].split(',')
             x = float(spn[0]) * 0.15
@@ -111,6 +112,7 @@ class MyWidget(QMainWindow, Ui_MainWindow):
                 print('spn after:', spn)
                 self.toponym_data['spn'] = ','.join(spn)
                 self.update_map()
+        # Зум:  отдаление
         if event.key() == Qt.Key_PageDown:
             spn = self.toponym_data['spn'].split(',')
             x = float(spn[0]) * 0.15
