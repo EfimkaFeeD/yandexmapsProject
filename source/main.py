@@ -78,7 +78,7 @@ class MyWidget(QMainWindow, Ui_MainWindow):
     def update_map(self):
         if not self.toponym_data:
             return
-        print('go to map update')
+        print('got to map update')
         response = requests.get(map_api_server, params=self.toponym_data)
         pixmap = QPixmap()
         pixmap.loadFromData(response.content)
@@ -90,20 +90,37 @@ class MyWidget(QMainWindow, Ui_MainWindow):
             return
         post_id = self.address['postal_code'] if 'postal_code' in self.address else ''
         if self.postId_box.isChecked():
-            self.address_label.setText(self.address['formatted'] + ', post code: ' + post_id)
+            if post_id:
+                self.address_label.setText(self.address['formatted'] + ', post code: ' + post_id)
+            else:
+                self.address_label.setText(self.address['formatted'] + ', post code: Can\'t determine')
         else:
             self.address_label.setText(self.address['formatted'])
 
+    # Обработка событий клавиатуры
     def keyPressEvent(self, event):
         if not self.toponym_data:
             return
         if event.key() == Qt.Key_PageUp:
             spn = self.toponym_data['spn'].split(',')
-            print(spn)
-            spn[0], spn[1] = str(float(spn[0]) - 10), str(float(spn[1]) - 0.01)
-            self.toponym_data['spn'] = ','.join(spn)
-            print(spn)
-            self.update_map()
+            x = float(spn[0]) * 0.15
+            y = float(spn[1]) * 0.15
+            print('spn before:', spn)
+            if float(spn[0]) > 0.0001 and float(spn[1]) > 0.0001:
+                spn[0], spn[1] = str(float(spn[0]) - x), str(float(spn[1]) - y)
+                print('spn after:', spn)
+                self.toponym_data['spn'] = ','.join(spn)
+                self.update_map()
+        if event.key() == Qt.Key_PageDown:
+            spn = self.toponym_data['spn'].split(',')
+            x = float(spn[0]) * 0.15
+            y = float(spn[1]) * 0.15
+            print('spn before:', spn)
+            if float(spn[0]) < 100 and float(spn[1]) < 70:
+                spn[0], spn[1] = str(float(spn[0]) + x), str(float(spn[1]) + y)
+                print('spn after:', spn)
+                self.toponym_data['spn'] = ','.join(spn)
+                self.update_map()
 
 
 if __name__ == '__main__':
