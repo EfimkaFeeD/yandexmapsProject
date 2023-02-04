@@ -12,8 +12,8 @@ map_types = {'scheme': 'map', 'satellite': 'sat', 'hybrid': 'sat,skl'}
 
 # Нахождение размеров топонима
 def get_toponym_size(toponym):
-    toponym_upper_corner, toponym_lower_corner = (toponym['boundedBy']['Envelope']['upperCorner']).split(' '), (
-        toponym['boundedBy']['Envelope']['lowerCorner']).split(' ')
+    toponym_upper_corner, toponym_lower_corner = (toponym['boundedBy']['Envelope']['upperCorner']).split(
+        ' '), (toponym['boundedBy']['Envelope']['lowerCorner']).split(' ')
     toponym_longitude_size, toponym_lattitude_size = str(
         float(toponym_upper_corner[0]) - float(toponym_lower_corner[0])), str(
         float(toponym_upper_corner[1]) - float(toponym_lower_corner[1]))
@@ -43,11 +43,12 @@ class MyWidget(QMainWindow, Ui_MainWindow):
 
         response = requests.get(geocoder_api_server, params=geocoder_params)
 
-        if not response:
-            print('Error')
+        json_response = response.json()
+
+        if not json_response["response"]["GeoObjectCollection"]:
+            self.error()
             return
 
-        json_response = response.json()
         toponym = json_response["response"]["GeoObjectCollection"][
             "featureMember"][0]["GeoObject"]
         self.address = toponym['metaDataProperty']['GeocoderMetaData']['Address']
@@ -75,6 +76,7 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         self.toponym_data['l'] = map_types[self.view_button.currentText()]
         self.update_map()
 
+    # Обновление изображения карты
     def update_map(self):
         if not self.toponym_data:
             return
@@ -91,9 +93,12 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         post_id = self.address['postal_code'] if 'postal_code' in self.address else ''
         if self.postId_box.isChecked():
             if post_id:
-                self.address_label.setText(self.address['formatted'] + ', post code: ' + post_id)
+                self.address_label.setText(
+                    self.address['formatted'] + ', post code: ' + post_id)
             else:
-                self.address_label.setText(self.address['formatted'] + ', post code: Can\'t determine')
+                self.address_label.setText(
+                    self.address['formatted'] +
+                    ', post code: Can\'t determine')
         else:
             self.address_label.setText(self.address['formatted'])
 
@@ -123,6 +128,10 @@ class MyWidget(QMainWindow, Ui_MainWindow):
                 print('spn after:', spn)
                 self.toponym_data['spn'] = ','.join(spn)
                 self.update_map()
+
+    # Ошибка в получении запроса
+    def error(self):
+        print('ERROR')
 
 
 if __name__ == '__main__':
