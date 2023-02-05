@@ -56,8 +56,12 @@ class MyWidget(QMainWindow, Ui_MainWindow):
             self.error()
             return
 
-        toponym = json_response["response"]["GeoObjectCollection"][
-            "featureMember"][0]["GeoObject"]
+        try:
+            toponym = json_response["response"]["GeoObjectCollection"][
+                "featureMember"][0]["GeoObject"]
+        except IndexError:
+            self.error()
+            return
         self.address = toponym['metaDataProperty']['GeocoderMetaData']['Address']
         self.update_address()
         toponym_coordinates = toponym["Point"]["pos"]
@@ -127,7 +131,7 @@ class MyWidget(QMainWindow, Ui_MainWindow):
                 print('spn after:', spn)
                 self.toponym_data['spn'] = ','.join(spn)
                 self.update_map()
-        # Зум:  отдаление
+        # Зум: отдаление
         if event.key() == Qt.Key_PageDown:
             spn = self.toponym_data['spn'].split(',')
             x = float(spn[0]) * 0.3
@@ -139,7 +143,7 @@ class MyWidget(QMainWindow, Ui_MainWindow):
                 self.toponym_data['spn'] = ','.join(spn)
                 self.update_map()
         # Передвижения центра карты выше
-        if event.key() == Qt.Key_Up:
+        if event.key() in [Qt.Key_W, 1062]:
             ll = self.toponym_data['ll'].split(',')
             print('ll before:', ll)
             spn = self.toponym_data['spn'].split(',')
@@ -152,7 +156,7 @@ class MyWidget(QMainWindow, Ui_MainWindow):
                 self.toponym_data['ll'] = ','.join(ll)
                 self.update_map()
         # Передвижение центра карты ниже
-        if event.key() == Qt.Key_Down:
+        if event.key() in [Qt.Key_S, 1067]:
             ll = self.toponym_data['ll'].split(',')
             print('ll before:', ll)
             spn = self.toponym_data['spn'].split(',')
@@ -165,7 +169,7 @@ class MyWidget(QMainWindow, Ui_MainWindow):
                 self.toponym_data['ll'] = ','.join(ll)
                 self.update_map()
         # Передвижение центра карты правее
-        if event.key() == Qt.Key_Right:
+        if event.key() in [Qt.Key_D, 1042]:
             ll = self.toponym_data['ll'].split(',')
             print('ll before:', ll)
             spn = self.toponym_data['spn'].split(',')
@@ -178,7 +182,7 @@ class MyWidget(QMainWindow, Ui_MainWindow):
                 self.toponym_data['ll'] = ','.join(ll)
                 self.update_map()
         # Передвижение центра карты левее
-        if event.key() == Qt.Key_Left:
+        if event.key() in [Qt.Key_A, 1060]:
             ll = self.toponym_data['ll'].split(',')
             print('ll before:', ll)
             spn = self.toponym_data['spn'].split(',')
