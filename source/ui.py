@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '.\main (1).ui'
+# Form implementation generated from reading ui file '.\main.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.7
 #
@@ -21,10 +21,10 @@ class Ui_MainWindow(object):
         MainWindow.setFont(font)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
-        self.unput_edit = QtWidgets.QLineEdit(self.centralwidget)
-        self.unput_edit.setGeometry(QtCore.QRect(180, 10, 441, 41))
-        self.unput_edit.setFocusPolicy(QtCore.Qt.ClickFocus)
-        self.unput_edit.setObjectName("unput_edit")
+        self.input_edit = QtWidgets.QLineEdit(self.centralwidget)
+        self.input_edit.setGeometry(QtCore.QRect(180, 10, 441, 41))
+        self.input_edit.setFocusPolicy(QtCore.Qt.ClickFocus)
+        self.input_edit.setObjectName("input_edit")
         self.input_label = QtWidgets.QLabel(self.centralwidget)
         self.input_label.setGeometry(QtCore.QRect(10, 10, 161, 41))
         self.input_label.setObjectName("input_label")

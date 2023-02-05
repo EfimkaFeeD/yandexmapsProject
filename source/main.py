@@ -48,7 +48,11 @@ class MyWidget(QMainWindow, Ui_MainWindow):
 
         json_response = response.json()
 
-        if not json_response["response"]["GeoObjectCollection"]:
+        try:
+            if not json_response["response"]["GeoObjectCollection"]:
+                self.error()
+                return
+        except KeyError:
             self.error()
             return
 
@@ -190,6 +194,7 @@ class MyWidget(QMainWindow, Ui_MainWindow):
     # Ошибка в получении запроса
     def error(self):
         print('ERROR')
+        self.reset()
 
 
 if __name__ == '__main__':
