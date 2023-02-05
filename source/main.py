@@ -14,10 +14,10 @@ map_types = {'scheme': 'map', 'satellite': 'sat', 'hybrid': 'sat,skl'}
 def get_toponym_size(toponym):
     toponym_upper_corner, toponym_lower_corner = (toponym['boundedBy']['Envelope']['upperCorner']).split(
         ' '), (toponym['boundedBy']['Envelope']['lowerCorner']).split(' ')
-    toponym_longitude_size, toponym_lattitude_size = str(
+    toponym_longitude_size, toponym_latitude_size = str(
         float(toponym_upper_corner[0]) - float(toponym_lower_corner[0])), str(
         float(toponym_upper_corner[1]) - float(toponym_lower_corner[1]))
-    return [str(toponym_longitude_size), str(toponym_lattitude_size)]
+    return [str(toponym_longitude_size), str(toponym_latitude_size)]
 
 
 # Основной класс приложения
@@ -56,14 +56,13 @@ class MyWidget(QMainWindow, Ui_MainWindow):
             "featureMember"][0]["GeoObject"]
         self.address = toponym['metaDataProperty']['GeocoderMetaData']['Address']
         self.update_address()
-        toponym_coodrinates = toponym["Point"]["pos"]
-        toponym_longitude, toponym_lattitude = toponym_coodrinates.split(" ")
-
+        toponym_coordinates = toponym["Point"]["pos"]
+        toponym_longitude, toponym_lattitude = toponym_coordinates.split(" ")
+        
         map_params = {
             "ll": ",".join([toponym_longitude, toponym_lattitude]),
             "spn": ",".join(get_toponym_size(toponym)),
             "size": "650,450",
-            "z": "10",
             "l": map_types[self.view_button.currentText()]
         }
         self.toponym_data = map_params
@@ -71,7 +70,10 @@ class MyWidget(QMainWindow, Ui_MainWindow):
 
     # Сброс поиска
     def reset(self):
-        pass
+        self.map_image.setPixmap(QPixmap())
+        self.address_label.setText('')
+        self.address = None
+        self.toponym_data = None
 
     # Смена типа карты
     def update_map_type(self):
@@ -113,10 +115,10 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         # Зум: приближение
         if event.key() == Qt.Key_PageUp:
             spn = self.toponym_data['spn'].split(',')
-            x = float(spn[0]) * 0.15
-            y = float(spn[1]) * 0.15
+            x = float(spn[0]) * 0.3
+            y = float(spn[1]) * 0.3
             print('spn before:', spn)
-            if float(spn[0]) > 0.0001 and float(spn[1]) > 0.0001:
+            if float(spn[0]) - x > 0.0001 and float(spn[1]) - y > 0.0001:
                 spn[0], spn[1] = str(float(spn[0]) - x), str(float(spn[1]) - y)
                 print('spn after:', spn)
                 self.toponym_data['spn'] = ','.join(spn)
@@ -124,10 +126,10 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         # Зум:  отдаление
         if event.key() == Qt.Key_PageDown:
             spn = self.toponym_data['spn'].split(',')
-            x = float(spn[0]) * 0.15
-            y = float(spn[1]) * 0.15
+            x = float(spn[0]) * 0.3
+            y = float(spn[1]) * 0.3
             print('spn before:', spn)
-            if float(spn[0]) < 100 and float(spn[1]) < 70:
+            if float(spn[0]) - x < 125 and float(spn[1]) - y < 75:
                 spn[0], spn[1] = str(float(spn[0]) + x), str(float(spn[1]) + y)
                 print('spn after:', spn)
                 self.toponym_data['spn'] = ','.join(spn)
@@ -136,48 +138,52 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         if event.key() == Qt.Key_Up:
             ll = self.toponym_data['ll'].split(',')
             print('ll before:', ll)
-            y = 2
-            if float(ll[1]) < 70:
+            spn = self.toponym_data['spn'].split(',')
+            y = float(spn[1]) * 0.85
+            print('y:', y)
+            if float(ll[1]) + y < 75:
                 ll[1] = str(float(ll[1]) + y)
                 print('ll after:', ll)
                 print('spn:', self.toponym_data['spn'])
-                print('z:', self.toponym_data['z'])
                 self.toponym_data['ll'] = ','.join(ll)
                 self.update_map()
         # Передвижение центра карты ниже
         if event.key() == Qt.Key_Down:
             ll = self.toponym_data['ll'].split(',')
             print('ll before:', ll)
-            y = 2
-            if float(ll[1]) > -70:
+            spn = self.toponym_data['spn'].split(',')
+            y = float(spn[1]) * 0.85
+            print('y:', y)
+            if float(ll[1]) - y > -75:
                 ll[1] = str(float(ll[1]) - y)
                 print('ll after:', ll)
                 print('spn:', self.toponym_data['spn'])
-                print('z:', self.toponym_data['z'])
                 self.toponym_data['ll'] = ','.join(ll)
                 self.update_map()
-        # Передвижение карты правее
+        # Передвижение центра карты правее
         if event.key() == Qt.Key_Right:
             ll = self.toponym_data['ll'].split(',')
             print('ll before:', ll)
-            x = 2
-            if float(ll[0]) < 177:
+            spn = self.toponym_data['spn'].split(',')
+            x = float(spn[0]) * 0.85
+            print('x:', x)
+            if float(ll[0]) + x < 180:
                 ll[0] = str(float(ll[0]) + x)
                 print('ll after:', ll)
                 print('spn:', self.toponym_data['spn'])
-                print('z:', self.toponym_data['z'])
                 self.toponym_data['ll'] = ','.join(ll)
                 self.update_map()
-        # Передвижение карты левее
+        # Передвижение центра карты левее
         if event.key() == Qt.Key_Left:
             ll = self.toponym_data['ll'].split(',')
             print('ll before:', ll)
-            x = 2
-            if float(ll[0]) > 3:
+            spn = self.toponym_data['spn'].split(',')
+            x = float(spn[0]) * 0.85
+            print('x:', x)
+            if float(ll[0]) - x > -180:
                 ll[0] = str(float(ll[0]) - x)
                 print('ll after:', ll)
                 print('spn:', self.toponym_data['spn'])
-                print('z:', self.toponym_data['z'])
                 self.toponym_data['ll'] = ','.join(ll)
                 self.update_map()
 
