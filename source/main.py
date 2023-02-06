@@ -9,6 +9,8 @@ from ui import Ui_MainWindow
 map_api_server = "http://static-maps.yandex.ru/1.x/"
 map_types = {'scheme': 'map', 'satellite': 'sat', 'hybrid': 'sat,skl'}
 
+MAP_SIZE = (650, 450)
+
 
 # Нахождение размеров топонима
 def get_toponym_size(toponym):
@@ -65,12 +67,12 @@ class MyWidget(QMainWindow, Ui_MainWindow):
         self.address = toponym['metaDataProperty']['GeocoderMetaData']['Address']
         self.update_address()
         toponym_coordinates = toponym["Point"]["pos"]
-        toponym_longitude, toponym_lattitude = toponym_coordinates.split(" ")
+        toponym_longitude, toponym_latitude = toponym_coordinates.split(" ")
         
         map_params = {
-            "ll": ",".join([toponym_longitude, toponym_lattitude]),
+            "ll": ",".join([toponym_longitude, toponym_latitude]),
             "spn": ",".join(get_toponym_size(toponym)),
-            "size": "650,450",
+            "size": ','.join(map(str, MAP_SIZE)),
             "l": map_types[self.view_button.currentText()]
         }
         self.toponym_data = map_params
@@ -194,6 +196,25 @@ class MyWidget(QMainWindow, Ui_MainWindow):
                 print('spn:', self.toponym_data['spn'])
                 self.toponym_data['ll'] = ','.join(ll)
                 self.update_map()
+
+    def mousePressEvent(self, event):
+        if not self.toponym_data:
+            return
+        spn = tuple(map(float, self.toponym_data['spn'].split(',')))
+        ll = tuple(map(float, self.toponym_data['ll'].split(',')))
+        print("old coordinates:", self.toponym_data['ll'])
+        absolute_pos = event.pos().x(), event.pos().y()
+        shift = self.map_image.x() + self.map_image.width() // 2 - MAP_SIZE[0] // 2,\
+            self.map_image.y() + self.map_image.height() // 2 - MAP_SIZE[1] // 2
+        relative_pos = absolute_pos[0] - shift[0], absolute_pos[1] - shift[1]
+        if not(0 <= relative_pos[0] <= MAP_SIZE[0]) or not (0 <= relative_pos[1] <= MAP_SIZE[1]):
+            return
+        center_delta = relative_pos[0] - MAP_SIZE[0] // 2, relative_pos[1] - MAP_SIZE[1] // 2
+        spn_shift = spn[0] / MAP_SIZE[0], spn[1] / MAP_SIZE[1]
+        degree_shift = center_delta[0] * spn_shift[0], -center_delta[1] * spn_shift[1]
+        cord = ll[0] + degree_shift[0], ll[1] + degree_shift[1]
+        print("new coordinates:", ','.join(map(str, cord)))
+        print('reversed:', ', '.join(map(str, cord[::-1])))
 
     # Ошибка в получении запроса
     def error(self):
