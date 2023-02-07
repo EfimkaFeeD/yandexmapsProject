@@ -95,6 +95,6 @@ class Ui_MainWindow(object):
         self.reset_button.setText(_translate("MainWindow", "reset"))
         self.search_button.setText(_translate("MainWindow", "search"))
         self.view_button.setItemText(0, _translate("MainWindow", "scheme"))
-        self.view_button.setItemText(1, _translate("MainWindow", "satelite"))
+        self.view_button.setItemText(1, _translate("MainWindow", "satellite"))
         self.view_button.setItemText(2, _translate("MainWindow", "hybrid"))
         self.postId_box.setText(_translate("MainWindow", "Post index"))
