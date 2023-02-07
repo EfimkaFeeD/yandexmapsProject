@@ -66,7 +66,7 @@ class MyWidget(QMainWindow, Ui_MainWindow):
 
         try:
             if not json_response["response"]["GeoObjectCollection"]:
-                self.error()
+                self.error('empty api response')
                 return
         except KeyError as error:
             self.error(error)
